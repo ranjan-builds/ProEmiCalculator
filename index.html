@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pro EMI Calculator</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="responsive.css" />
+  </head>
+  <body data-theme="light">
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="brand">
+        <h1><i data-lucide="calculator"></i> Pro EMI Calculator</h1>
+        <p>Plan your loan with confidence</p>
+      </div>
+      <div class="nav-actions">
+        <button class="btn btn-outline" id="btnReset">
+          <i data-lucide="rotate-ccw"></i> Reset
+        </button>
+        <button id="themeToggle" class="icon-btn" title="Toggle Theme" aria-label="Toggle theme">
+          <i data-lucide="moon"></i>
+        </button>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="grid-layout">
+        <!-- Left Column: Inputs -->
+        <div class="inputs-section">
+          <div class="card">
+            <h2 class="card-header">
+              <i data-lucide="settings-2"></i> Loan Parameters
+            </h2>
+
+            <div class="form-group">
+              <div class="form-label"><span>Quick start</span></div>
+              <div class="preset-group" aria-label="Loan presets">
+                <button class="preset-btn" type="button" data-preset="home">Home</button>
+                <button class="preset-btn" type="button" data-preset="car">Car</button>
+                <button class="preset-btn" type="button" data-preset="personal">Personal</button>
+              </div>
+            </div>
+
+            <!-- Calculation Method Toggle -->
+            <div class="form-group">
+              <div class="form-label">
+                <label>Calculation Method</label>
+              </div>
+              <div class="toggle-group">
+                <button class="toggle-btn active" id="btnReducing">
+                  Reducing Balance
+                </button>
+                <button class="toggle-btn" id="btnFlat">Flat Rate</button>
+              </div>
+            </div>
+
+            <!-- Loan Amount -->
+            <div class="form-group">
+              <div class="form-label">
+                <label for="loanAmount">Loan Amount</label>
+              </div>
+              <div class="input-wrapper">
+                <span class="prefix">₹</span>
+                <input
+                  type="number"
+                  id="loanAmount"
+                  class="has-prefix"
+                  value="1000000"
+                  min="100000"
+                  max="100000000"
+                  step="10000"
+                />
+              </div>
+              <input
+                type="range"
+                id="loanAmountSlider"
+                min="100000"
+                max="100000000"
+                step="10000"
+                value="1000000"
+              />
+              <div
+                class="flex-between amount-scale"
+              >
+                <span>1L</span>
+                <span>10Cr</span>
+              </div>
+            </div>
+
+            <!-- Interest Rate -->
+            <div class="form-group">
+              <div class="form-label">
+                <label for="interestRate">Annual Interest Rate</label>
+              </div>
+              <div class="input-wrapper">
+                <input
+                  type="number"
+                  id="interestRate"
+                  class="has-suffix"
+                  value="8.5"
+                  min="1"
+                  max="30"
+                  step="0.1"
+                />
+                <span class="suffix">%</span>
+              </div>
+              <input
+                type="range"
+                id="interestRateSlider"
+                min="1"
+                max="30"
+                step="0.1"
+                value="8.5"
+              />
+            </div>
+
+            <!-- Loan Tenure -->
+            <div class="form-group">
+              <div class="form-label">
+                <label for="tenure">Loan Tenure</label>
+                <div class="toggle-group tenure-toggle">
+                  <button class="toggle-btn active" id="btnYears">Yr</button>
+                  <button class="toggle-btn" id="btnMonths">Mo</button>
+                </div>
+              </div>
+              <div class="input-wrapper">
+                <input
+                  type="number"
+                  id="tenure"
+                  value="10"
+                  min="1"
+                  max="30"
+                  step="1"
+                />
+              </div>
+              <input
+                type="range"
+                id="tenureSlider"
+                min="1"
+                max="30"
+                step="1"
+                value="10"
+              />
+            </div>
+
+            <!-- Processing Fee -->
+            <div class="form-group">
+              <div class="form-label">
+                <label for="processingFee">Processing Fee (Optional)</label>
+              </div>
+              <div class="input-wrapper">
+                <input
+                  type="number"
+                  id="processingFee"
+                  class="has-suffix"
+                  value="0"
+                  min="0"
+                  max="10"
+                  step="0.1"
+                />
+                <span class="suffix">%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2 class="card-header">
+              <i data-lucide="piggy-bank"></i> Extra Payments
+            </h2>
+            <!-- Extra Monthly Payment -->
+            <div class="form-group">
+              <div class="form-label">
+                <label for="extraMonthly">Extra Monthly Payment</label>
+              </div>
+              <div class="input-wrapper">
+                <span class="prefix">₹</span>
+                <input
+                  type="number"
+                  id="extraMonthly"
+                  class="has-prefix"
+                  value="0"
+                  min="0"
+                  step="500"
+                />
+              </div>
+              <p class="extra-description">
+                Applied directly to principal to reduce tenure.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Results & Visuals -->
+        <div class="results-section">
+          <div class="card result-card">
+            <div class="result-panel">
+              <div class="result-title">Monthly EMI (Reducing Balance)</div>
+              <div class="result-value" id="resEmi">₹0</div>
+
+              <div class="summary-grid">
+                <div class="summary-item">
+                  <div class="summary-label">Total Principal</div>
+                  <div class="summary-val" id="resPrincipal">₹0</div>
+                </div>
+                <div class="summary-item">
+                  <div class="summary-label">Total Interest</div>
+                  <div class="summary-val" id="resInterest">₹0</div>
+                </div>
+                <div class="summary-item">
+                  <div class="summary-label">Total Payment</div>
+                  <div class="summary-val" id="resTotal">₹0</div>
+                </div>
+                <div class="summary-item">
+                  <div class="summary-label">Processing Fee</div>
+                  <div class="summary-val" id="resFee">₹0</div>
+                </div>
+                <div class="summary-item">
+                  <div class="summary-label">Payoff Time</div>
+                  <div class="summary-val" id="resDuration">0 months</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="charts-grid">
+              <div>
+                <h3 class="result-title chart-title">
+                  Principal vs Interest Breakup
+                </h3>
+                <div class="chart-container chart-container-small">
+                  <canvas id="pieChart"></canvas>
+                </div>
+              </div>
+              <div>
+                <h3 class="result-title chart-title">
+                  Outstanding Loan Balance Over Time
+                </h3>
+                <div class="chart-container chart-container-small">
+                  <canvas id="lineChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparing Reducing vs Flat Rate -->
+      <div class="card mt-4 comparison-card">
+        <h2 class="card-header">
+          <i data-lucide="scale"></i> Reducing Balance vs Flat Rate Interest
+        </h2>
+        <p class="comparison-description">
+          This tool demonstrates why <strong>Reducing Balance</strong> (standard
+          for home/personal loans) and <strong>Flat Rate</strong> (often used in
+          some car or micro-loans) are fundamentally different. A flat rate
+          charges interest on the original principal for the entire term,
+          ignoring your monthly principal repayments.
+        </p>
+        <div class="table-responsive">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th class="text-left">Metric</th>
+                <th>Reducing Balance Method</th>
+                <th>Flat Rate Method</th>
+                <th>Difference / Impact</th>
+              </tr>
+            </thead>
+            <tbody id="comparisonBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Amortization Schedule -->
+      <div class="card mt-4">
+        <div class="flex-between mb-4 schedule-header">
+          <h2 class="card-header schedule-title">
+            <i data-lucide="calendar-days"></i> Amortization Schedule
+          </h2>
+          <div class="schedule-actions">
+            <button class="btn btn-outline" id="btnPrint">
+              <i data-lucide="printer"></i> Print
+            </button>
+            <button class="btn btn-primary" id="btnDownloadCSV">
+              <i data-lucide="download"></i> Download CSV
+            </button>
+          </div>
+        </div>
+
+        <div
+          id="savingsMessage"
+          class="hidden mb-4 savings-message"
+        >
+          <!-- Dynamic text populated by JS -->
+        </div>
+
+        <div class="schedule-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>Opening Balance</th>
+                <th>EMI</th>
+                <th>Principal Paid</th>
+                <th>Interest Paid</th>
+                <th>Extra Pay</th>
+                <th>Closing Balance</th>
+              </tr>
+            </thead>
+            <tbody id="scheduleBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  <script src="script.js"></script>
+  </body>
+</html>
